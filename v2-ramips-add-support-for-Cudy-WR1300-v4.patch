@@ -1,0 +1,1198 @@
+From patchwork Wed May 13 18:39:38 2026
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Jan Brudna <jan.brudna@gmail.com>
+X-Patchwork-Id: 2238004
+Return-Path: 
+ <openwrt-devel-bounces+incoming=patchwork.ozlabs.org@lists.openwrt.org>
+X-Original-To: incoming@patchwork.ozlabs.org
+Delivered-To: patchwork-incoming@legolas.ozlabs.org
+Authentication-Results: legolas.ozlabs.org;
+	dkim=pass (2048-bit key;
+ secure) header.d=lists.infradead.org header.i=@lists.infradead.org
+ header.a=rsa-sha256 header.s=bombadil.20210309 header.b=QHovqbNA;
+	dkim=temperror header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=desiato.20200630 header.b=Q3sJfedX;
+	dkim=fail reason="signature verification failed" (2048-bit key;
+ unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256
+ header.s=20251104 header.b=OxR422Pv;
+	dkim-atps=neutral
+Authentication-Results: legolas.ozlabs.org;
+ spf=none (no SPF record) smtp.mailfrom=lists.openwrt.org
+ (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org;
+ envelope-from=openwrt-devel-bounces+incoming=patchwork.ozlabs.org@lists.openwrt.org;
+ receiver=patchwork.ozlabs.org)
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [IPv6:2607:7c80:54:3::133])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature ECDSA (secp384r1) server-digest SHA384)
+	(No client certificate requested)
+	by legolas.ozlabs.org (Postfix) with ESMTPS id 4gG2Qv6VYHz1yKH
+	for <incoming@patchwork.ozlabs.org>; Thu, 14 May 2026 04:43:16 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=lists.infradead.org; s=bombadil.20210309; h=Sender:
+	Content-Transfer-Encoding:Content-Type:List-Subscribe:List-Help:List-Post:
+	List-Archive:List-Unsubscribe:List-Id:MIME-Version:References:In-Reply-To:
+	Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	List-Owner; bh=DhaIQALZemUh5I8bUBN9H1yZC0oDm5Wv8P8DSZJ2Ye8=; b=QHovqbNAHQFo/+
+	5emSIDlRrghHPv5DgHMZnim4CW2EkTNVIE/kyIzIo5TYQ1p7hHmDdKS9d1oskS97DQzXqhEjdJKV1
+	t7kiOskemW7s7SkFbLlyet3vgWUwMXGxLhQ4Wxiy8JjwJ6SBzg2i0AOt33YrSWsgtKy/WCkb7IfId
+	v+gPj0Kh2BmJoIfKkO5VVQ1wZWFNRKWXQVcscrbdH9UxCN+f/+zm5gtClPpeyaJv1KLhynluJXLXp
+	tMHbT4nmwe1AEIDEkjrT0hr5ykBYA5X+qyFPUVQz3gO8WSyGTvix4SMSQW8zmoyecSoM5nbn42JeR
+	zqxIhql9+lTEzS6Pza8Q==;
+Received: from localhost ([::1] helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtp (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wNEUx-00000003UED-1ZMN;
+	Wed, 13 May 2026 18:39:59 +0000
+Received: from desiato.infradead.org ([2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+	by bombadil.infradead.org with esmtps (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wNEUt-00000003UE1-2MwC
+	for openwrt-devel@bombadil.infradead.org;
+	Wed, 13 May 2026 18:39:55 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Content-Transfer-Encoding:MIME-Version
+	:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+	Content-Type:Content-ID:Content-Description;
+	bh=A3FZ9MsjouR6L8whyyl3MJOQJrYu0gzdYlSEH2FBkaw=; b=Q3sJfedXNeWJ8BgyeY4PZj9Siz
+	OdM6fK6vJcO2je7Qkj+HFy8RSlR/WmOP+dDGM2Y7H1MSCNp+XdMM2XDcGjtw/+iWSqnW4TDKSQUBl
+	vHKEK1z4X9IGKicM6I1M7ipGsrcnwJzrvkV2ZtGMdXkGxQnl+5XWj3RWdSg32gvtkQWiu0+Kem4Im
+	UZ/75MXqLx5rSLwgujHDSPwACY/28ydsSNqExG4sE4ZtxaLDVWjucPg1/fT2rlBJjooQ7r67kphgM
+	PRj6ImIV8JstZ3IFugxPHmn+WAEXYU+97+5kkVBSKHXMTDqXFxn6TL0TqzGkBPuWpMOp8nRu6C4ao
+	IhjlTv3g==;
+Received: from mail-wm1-x332.google.com ([2a00:1450:4864:20::332])
+	by desiato.infradead.org with esmtps (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wNEUq-00000000v5H-1DGg
+	for openwrt-devel@lists.openwrt.org;
+	Wed, 13 May 2026 18:39:54 +0000
+Received: by mail-wm1-x332.google.com with SMTP id
+ 5b1f17b1804b1-48d102471a4so71270995e9.2
+        for <openwrt-devel@lists.openwrt.org>;
+ Wed, 13 May 2026 11:39:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778697590; x=1779302390;
+ darn=lists.openwrt.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=A3FZ9MsjouR6L8whyyl3MJOQJrYu0gzdYlSEH2FBkaw=;
+        b=OxR422PvaAYdJR6i5Ygvk6uWGWPvJczL37CXiA9BMngfGOuLAmwTUFk9etYm60gUIn
+         aY+dHH4vk6Uw4XMk8FUe4ExlEN3x3CGj21TNx3qGt0TmTxTSetfz8z2D2K67Vx7RWuvi
+         rjauTRUY4ksKr8XOcLlqVh5j8xJXwFL3SkspYsbQXf8d8Q+Md3U9wU+SUaIq3fc82nED
+         XdoJMnWNNBnMGaIotpnDgVSx6LakUK9+bTW5ah+MRcb38pGfO5M60pTRdoO4ULqpmb21
+         zGMDz+LM4r7nt6nRwtONP5FfysfUFrwGN+ANvPXMU3M3ZkZWVkH5GRku/7bNfhMiCPuO
+         6EFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778697590; x=1779302390;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=A3FZ9MsjouR6L8whyyl3MJOQJrYu0gzdYlSEH2FBkaw=;
+        b=ASHDXNq0Q498XGNL1CS9nv0I0jpGNkoeEzNiw9hpfX/AqNSSRLoobcBTgviuFurwG6
+         JqgJL699fHbpdiII+TpmIcmuV6HwoaEUHeXMEsdgs5t7bL3lnkrjQPBXePO4bt5WO5kY
+         NyQyYjCTZZrtZRSzKmPoprs6sqts6EXBK297ckd/U3rY3g5QzDxDEv04XiAXKH+zVYYW
+         MCDlXLIK6C+SFPuJVugKpYQQUKpvExIVRtuldQpVVTq4h+s6yJy0tnhxonmoiwt+nUH9
+         KE+fVOGDPF2onInnwdlrtDDacDnNp/AXh9ZR91ArYMrCccfZlibK2Uoyu0kgaqunDnJ+
+         hPGQ==
+X-Gm-Message-State: AOJu0YwIGk3bKMSwS3rXYt5v5zb6e03aXW/HpqDJh0IDoc0Nk74Nt9V4
+	+1tgV+NVhtXP7eAaPDOXMxNRt6R1/BSa0iLUnn1DMoTA/9xsn2syWzWWsn/I4A==
+X-Gm-Gg: Acq92OFm8+RhvguUTztFB5nr4fqkQMH+Q3CWVcJg2mEXdoxzINAwTacMWQhQaVLH0mE
+	7wb84lxDcWNqPMFfaDGbwYNMTqWiTRcXH6IzevTJpqqkaZ53NzRO9JUOqXF9RQ9pGzekqdgOrWc
+	q6+OL1BcEE1Pw83n8W1XunUq2UCuvJH66Vt5U+WpeKJpX34CRQ7kHmKqHOXhoUB8fRxS08ao5ut
+	5YWMbMb1Uci2YOZyOeT6eb3ssAmgfl5d9NaKO9mhL4GlFYXd/Ooj2rrh4xzMjY3dXxiZtF+F3kb
+	DF5bUXHk2SXyDV3UMqvTZpseCKqSVWc7kHQnAw9ZLHeZsBf1ABALM1auWO6lguIns3UbsvrRQCC
+	F89WX1wn2zi9/47lNg939UW5Hfw5XPoaqFrVCqgM25MZt0pjpJmcrzP+e+Yl39SCYCOuiF+KgVK
+	aPIypvDYdusSI7wQQHOq6lABY6Wia1ZUo/Ep/Sjsmj3dTUIOofIi8uSz2Z+TOJGB/bJkxe60fNY
+	pe6phKoBI587RG+IE31ID6YEWuICg==
+X-Received: by 2002:a05:600c:8b2b:b0:489:1d74:56d with SMTP id
+ 5b1f17b1804b1-48fc9a4db09mr74483985e9.29.1778697589443;
+        Wed, 13 May 2026 11:39:49 -0700 (PDT)
+Received: from aiden-VirtualBox.local (85-160-76-150.reb.o2.cz.
+ [85.160.76.150])
+        by smtp.gmail.com with ESMTPSA id
+ 5b1f17b1804b1-48fd767ae6dsm960915e9.22.2026.05.13.11.39.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 May 2026 11:39:48 -0700 (PDT)
+From: Jan Brudna <jan.brudna@gmail.com>
+To: openwrt-devel@lists.openwrt.org
+Cc: Jan Brudna <jan.brudna@gmail.com>
+Subject: [PATCH v2] ramips: add support for Cudy WR1300 v4
+Date: Wed, 13 May 2026 20:39:38 +0200
+Message-Id: <20260513183938.242137-1-jan.brudna@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260512133722.896830-1-jan.brudna@gmail.com>
+References: <20260512133722.896830-1-jan.brudna@gmail.com>
+MIME-Version: 1.0
+X-CRM114-Version: 20100106-BlameMichelson ( TRE 0.9.0 (BSD) ) MR-646709E3 
+X-CRM114-CacheID: sfid-20260513_193952_760555_34F30901 
+X-CRM114-Status: GOOD (  16.76  )
+X-Spam-Score: -0.2 (/)
+X-Spam-Report: Spam detection software,
+ running on the system "desiato.infradead.org",
+ has NOT identified this incoming email as spam.  The original
+ message has been attached to this so you can view it or label
+ similar future email.  If you have any questions, see
+ the administrator of that system for details.
+ Content preview:  Cudy WR1300 v4 is a MT7621 based dual-band router.
+ Hardware:
+    - SoC: MediaTek MT7621 - RAM: 128 MiB - Flash: 16 MiB SPI NOR - WiFi 2.4
+   GHz: MediaTek MT7603E - WiFi 5 GHz: MediaTek MT7663E - Ethernet: 5x
+ 10/100/1000
+    Mbps - Buttons: Reset, WPS - LEDs: Sy [...]
+ Content analysis details:   (-0.2 points, 5.0 required)
+  pts rule name              description
+ ---- ----------------------
+ --------------------------------------------------
+ -0.0 RCVD_IN_DNSWL_NONE     RBL: Sender listed at https://www.dnswl.org/, no
+                             trust
+                             [2a00:1450:4864:20:0:0:0:332 listed in]
+                             [list.dnswl.org]
+  0.0 SPF_HELO_NONE          SPF: HELO does not publish an SPF Record
+ -0.0 SPF_PASS               SPF: sender matches SPF record
+ -0.1 DKIM_VALID             Message has at least one valid DKIM or DK
+ signature
+ -0.1 DKIM_VALID_AU          Message has a valid DKIM or DK signature from
+ author's
+                             domain
+ -0.1 DKIM_VALID_EF          Message has a valid DKIM or DK signature from
+                             envelope-from domain
+  0.1 DKIM_SIGNED            Message has a DKIM or DK signature,
+ not necessarily valid
+  0.0 FREEMAIL_FROM          Sender email is commonly abused enduser mail
+ provider
+                             [jan.brudna(at)gmail.com]
+ -0.0 DMARC_PASS             DMARC pass policy
+X-BeenThere: openwrt-devel@lists.openwrt.org
+X-Mailman-Version: 2.1.34
+Precedence: list
+List-Id: OpenWrt Development List <openwrt-devel.lists.openwrt.org>
+List-Unsubscribe: <https://lists.openwrt.org/mailman/options/openwrt-devel>,
+ <mailto:openwrt-devel-request@lists.openwrt.org?subject=unsubscribe>
+List-Archive: <http://lists.openwrt.org/pipermail/openwrt-devel/>
+List-Post: <mailto:openwrt-devel@lists.openwrt.org>
+List-Help: <mailto:openwrt-devel-request@lists.openwrt.org?subject=help>
+List-Subscribe: <https://lists.openwrt.org/mailman/listinfo/openwrt-devel>,
+ <mailto:openwrt-devel-request@lists.openwrt.org?subject=subscribe>
+Sender: "openwrt-devel" <openwrt-devel-bounces@lists.openwrt.org>
+Errors-To: 
+ openwrt-devel-bounces+incoming=patchwork.ozlabs.org@lists.openwrt.org
+
+Cudy WR1300 v4 is a MT7621 based dual-band router.
+
+Hardware:
+- SoC: MediaTek MT7621
+- RAM: 128 MiB
+- Flash: 16 MiB SPI NOR
+- WiFi 2.4 GHz: MediaTek MT7603E
+- WiFi 5 GHz: MediaTek MT7663E
+- Ethernet: 5x 10/100/1000 Mbps
+- Buttons: Reset, WPS
+- LEDs: System, Internet, WAN, LAN1-4, WiFi 2.4 GHz, WiFi 5 GHz
+
+The v4 hardware differs from v3 in GPIO assignments for LEDs and
+buttons. WiFi LEDs are connected to MT7621 GPIO5/GPIO6 and require
+the uart3 pin group to be muxed as GPIO.
+
+Tested on retail Cudy WR1300 v4:
+- sysupgrade image boots
+- WAN and LAN1-4
+- 2.4 GHz and 5 GHz WiFi
+- Reset and WPS button events
+- System, Internet, WAN, LAN1-4 and WiFi LEDs
+
+Refactor the existing WR1300 v1/v2/v3 DTS files into a shared
+mt7621_cudy_wr1300.dtsi with per-variant conditionals, and add
+WR1300 v4 on top of that common structure.
+
+Signed-off-by: Jan Brudna <jan.brudna@gmail.com>
+---
+
+Changes since v1:
+- Refactor the WR1300 v1/v2/v3 DTS files into a shared
+  mt7621_cudy_wr1300.dtsi with per-variant conditionals,
+  following review feedback.
+- Add WR1300 v4 on top of the new common structure.
+
+ .../ramips/dts/mt7621_cudy_wr1300-v1.dts      | 229 +---------
+ .../ramips/dts/mt7621_cudy_wr1300-v2.dts      |  28 +-
+ .../ramips/dts/mt7621_cudy_wr1300-v2v3.dtsi   | 189 --------
+ .../ramips/dts/mt7621_cudy_wr1300-v3.dts      |  33 +-
+ .../ramips/dts/mt7621_cudy_wr1300-v4.dts      |   4 +
+ .../linux/ramips/dts/mt7621_cudy_wr1300.dtsi  | 404 ++++++++++++++++++
+ target/linux/ramips/image/mt7621.mk           |  12 +
+ .../mt7621/base-files/etc/board.d/01_leds     |   9 +
+ 8 files changed, 435 insertions(+), 473 deletions(-)
+ delete mode 100644 target/linux/ramips/dts/mt7621_cudy_wr1300-v2v3.dtsi
+ create mode 100644 target/linux/ramips/dts/mt7621_cudy_wr1300-v4.dts
+ create mode 100644 target/linux/ramips/dts/mt7621_cudy_wr1300.dtsi
+
+diff --git a/target/linux/ramips/dts/mt7621_cudy_wr1300-v1.dts b/target/linux/ramips/dts/mt7621_cudy_wr1300-v1.dts
+index af04e033a1..3b8cfb4be5 100644
+--- a/target/linux/ramips/dts/mt7621_cudy_wr1300-v1.dts
++++ b/target/linux/ramips/dts/mt7621_cudy_wr1300-v1.dts
+@@ -1,229 +1,4 @@
+ // SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+ 
+-#include "mt7621.dtsi"
+-
+-#include <dt-bindings/input/input.h>
+-#include <dt-bindings/leds/common.h>
+-#include <dt-bindings/gpio/gpio.h>
+-
+-/ {
+-	compatible = "cudy,wr1300-v1", "mediatek,mt7621-soc";
+-	model = "Cudy WR1300 v1";
+-
+-	aliases {
+-		led-boot = &led_sys;
+-		led-failsafe = &led_sys;
+-		led-running = &led_sys;
+-		led-upgrade = &led_sys;
+-		label-mac-device = &gmac0;
+-	};
+-
+-	chosen {
+-		bootargs = "console=ttyS0,115200";
+-	};
+-
+-	keys {
+-		compatible = "gpio-keys";
+-
+-		reset {
+-			label = "reset";
+-			gpios = <&gpio 18 GPIO_ACTIVE_LOW>;
+-			linux,code = <KEY_RESTART>;
+-		};
+-
+-		wps {
+-			label = "wps";
+-			gpios = <&gpio 3 GPIO_ACTIVE_LOW>;
+-			linux,code = <KEY_WPS_BUTTON>;
+-		};
+-	};
+-
+-	leds {
+-		compatible = "gpio-leds";
+-
+-		led_sys: sys {
+-			label = "green:sys";
+-			gpios = <&gpio 15 GPIO_ACTIVE_HIGH>;
+-		};
+-
+-		usb {
+-			function = LED_FUNCTION_USB;
+-			color = <LED_COLOR_ID_GREEN>;
+-			gpios = <&gpio 14 GPIO_ACTIVE_HIGH>;
+-			trigger-sources = <&xhci_ehci_port1>, <&ehci_port2>;
+-			linux,default-trigger = "usbport";
+-		};
+-
+-		wps {
+-			function = LED_FUNCTION_WPS;
+-			color = <LED_COLOR_ID_GREEN>;
+-			gpios = <&gpio 13 GPIO_ACTIVE_LOW>;
+-		};
+-	};
+-};
+-
+-&spi0 {
+-	status = "okay";
+-
+-	flash@0 {
+-		compatible = "jedec,spi-nor";
+-		reg = <0>;
+-		spi-max-frequency = <10000000>;
+-
+-		partitions {
+-			compatible = "fixed-partitions";
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-
+-			partition@0 {
+-				label = "u-boot";
+-				reg = <0x0 0x30000>;
+-				read-only;
+-			};
+-
+-			partition@30000 {
+-				label = "u-boot-env";
+-				reg = <0x30000 0x10000>;
+-				read-only;
+-			};
+-
+-			partition@40000 {
+-				label = "factory";
+-				reg = <0x40000 0x10000>;
+-				read-only;
+-
+-				nvmem-layout {
+-					compatible = "fixed-layout";
+-					#address-cells = <1>;
+-					#size-cells = <1>;
+-
+-					eeprom_factory_0: eeprom@0 {
+-						reg = <0x0 0x400>;
+-					};
+-
+-					eeprom_factory_8000: eeprom@8000 {
+-						reg = <0x8000 0x200>;
+-					};
+-				};
+-			};
+-
+-			partition@50000 {
+-				compatible = "denx,uimage";
+-				label = "firmware";
+-				reg = <0x50000 0xf80000>;
+-			};
+-
+-			partition@fd0000 {
+-				label = "debug";
+-				reg = <0xfd0000 0x10000>;
+-				read-only;
+-			};
+-
+-			partition@fe0000 {
+-				label = "backup";
+-				reg = <0xfe0000 0x10000>;
+-				read-only;
+-			};
+-
+-			partition@ff0000 {
+-				label = "bdinfo";
+-				reg = <0xff0000 0x10000>;
+-				read-only;
+-
+-				nvmem-layout {
+-					compatible = "fixed-layout";
+-					#address-cells = <1>;
+-					#size-cells = <1>;
+-
+-					macaddr_bdinfo_de00: macaddr@de00 {
+-						compatible = "mac-base";
+-						reg = <0xde00 0x6>;
+-						#nvmem-cell-cells = <1>;
+-					};
+-				};
+-			};
+-		};
+-	};
+-};
+-
+-&pcie {
+-	status = "okay";
+-};
+-
+-&pcie0 {
+-	wifi@0,0 {
+-		compatible = "mediatek,mt76";
+-		reg = <0x0000 0 0 0 0>;
+-		nvmem-cells = <&eeprom_factory_0>, <&macaddr_bdinfo_de00 0>;
+-		nvmem-cell-names = "eeprom", "mac-address";
+-		ieee80211-freq-limit = <2400000 2500000>;
+-
+-		led {
+-			led-active-low;
+-		};
+-	};
+-};
+-
+-&pcie1 {
+-	wifi@0,0 {
+-		compatible = "mediatek,mt76";
+-		reg = <0x0000 0 0 0 0>;
+-		nvmem-cells = <&eeprom_factory_8000>, <&macaddr_bdinfo_de00 2>;
+-		nvmem-cell-names = "eeprom", "mac-address";
+-		ieee80211-freq-limit = <5000000 6000000>;
+-
+-		led {
+-			led-sources = <2>;
+-			led-active-low;
+-		};
+-	};
+-};
+-
+-&gmac0 {
+-	nvmem-cells = <&macaddr_bdinfo_de00 0>;
+-	nvmem-cell-names = "mac-address";
+-};
+-
+-&gmac1 {
+-	status = "okay";
+-	label = "wan";
+-	phy-handle = <&ethphy4>;
+-
+-	nvmem-cells = <&macaddr_bdinfo_de00 1>;
+-	nvmem-cell-names = "mac-address";
+-};
+-
+-&ethphy4 {
+-	/delete-property/ interrupts;
+-};
+-
+-&switch0 {
+-	ports {
+-		port@0 {
+-			status = "okay";
+-			label = "lan4";
+-		};
+-
+-		port@1 {
+-			status = "okay";
+-			label = "lan3";
+-		};
+-
+-		port@2 {
+-			status = "okay";
+-			label = "lan2";
+-		};
+-
+-		port@3 {
+-			status = "okay";
+-			label = "lan1";
+-		};
+-	};
+-};
+-
+-&state_default {
+-	gpio {
+-		groups = "wdt", "i2c", "jtag";
+-		function = "gpio";
+-	};
+-};
++#define WR1300_V1
++#include "mt7621_cudy_wr1300.dtsi"
+diff --git a/target/linux/ramips/dts/mt7621_cudy_wr1300-v2.dts b/target/linux/ramips/dts/mt7621_cudy_wr1300-v2.dts
+index a33279e596..5e3f712f9b 100644
+--- a/target/linux/ramips/dts/mt7621_cudy_wr1300-v2.dts
++++ b/target/linux/ramips/dts/mt7621_cudy_wr1300-v2.dts
+@@ -1,28 +1,4 @@
+ // SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+ 
+-#include "mt7621_cudy_wr1300-v2v3.dtsi"
+-
+-/ {
+-	compatible = "cudy,wr1300-v2", "mediatek,mt7621-soc";
+-	model = "Cudy WR1300 v2";
+-};
+-
+-&pcie1 {
+-	wifi@0,0 {
+-		compatible = "mediatek,mt76";
+-		reg = <0x0000 0 0 0 0>;
+-		nvmem-cells = <&eeprom_factory_0>, <&macaddr_bdinfo_de00 0>;
+-		nvmem-cell-names = "eeprom", "mac-address";
+-		ieee80211-freq-limit = <2400000 2500000>;
+-	};
+-};
+-
+-&pcie0 {
+-	wifi@0,0 {
+-		compatible = "mediatek,mt76";
+-		reg = <0x0000 0 0 0 0>;
+-		nvmem-cells = <&eeprom_factory_8000>, <&macaddr_bdinfo_de00 2>;
+-		nvmem-cell-names = "eeprom", "mac-address";
+-		ieee80211-freq-limit = <5000000 6000000>;
+-	};
+-};
++#define WR1300_V2
++#include "mt7621_cudy_wr1300.dtsi"
+diff --git a/target/linux/ramips/dts/mt7621_cudy_wr1300-v2v3.dtsi b/target/linux/ramips/dts/mt7621_cudy_wr1300-v2v3.dtsi
+deleted file mode 100644
+index da62648bc9..0000000000
+--- a/target/linux/ramips/dts/mt7621_cudy_wr1300-v2v3.dtsi
++++ /dev/null
+@@ -1,189 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+-
+-#include "mt7621.dtsi"
+-
+-#include <dt-bindings/input/input.h>
+-#include <dt-bindings/leds/common.h>
+-#include <dt-bindings/gpio/gpio.h>
+-
+-/ {
+-	aliases {
+-		led-boot = &led_sys;
+-		led-failsafe = &led_sys;
+-		led-running = &led_sys;
+-		led-upgrade = &led_sys;
+-		label-mac-device = &gmac0;
+-	};
+-
+-	chosen {
+-		bootargs = "console=ttyS0,115200";
+-	};
+-
+-	keys {
+-		compatible = "gpio-keys";
+-
+-		reset {
+-			label = "reset";
+-			gpios = <&gpio 18 GPIO_ACTIVE_LOW>;
+-			linux,code = <KEY_RESTART>;
+-		};
+-
+-		wps {
+-			label = "wps";
+-			gpios = <&gpio 7 GPIO_ACTIVE_LOW>;
+-			linux,code = <KEY_WPS_BUTTON>;
+-		};
+-	};
+-
+-	leds {
+-		compatible = "gpio-leds";
+-
+-		led_sys: sys {
+-			label = "green:sys";
+-			gpios = <&gpio 15 GPIO_ACTIVE_LOW>;
+-		};
+-
+-		wps {
+-			function = LED_FUNCTION_WPS;
+-			color = <LED_COLOR_ID_GREEN>;
+-			gpios = <&gpio 13 GPIO_ACTIVE_LOW>;
+-		};
+-	};
+-};
+-
+-&spi0 {
+-	status = "okay";
+-
+-	flash@0 {
+-		compatible = "jedec,spi-nor";
+-		reg = <0>;
+-		spi-max-frequency = <40000000>;
+-
+-		partitions {
+-			compatible = "fixed-partitions";
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-
+-			partition@0 {
+-				label = "u-boot";
+-				reg = <0x0 0x30000>;
+-				read-only;
+-			};
+-
+-			partition@30000 {
+-				label = "u-boot-env";
+-				reg = <0x30000 0x10000>;
+-				read-only;
+-			};
+-
+-			partition@40000 {
+-				label = "factory";
+-				reg = <0x40000 0x10000>;
+-				read-only;
+-
+-				nvmem-layout {
+-					compatible = "fixed-layout";
+-					#address-cells = <1>;
+-					#size-cells = <1>;
+-
+-					eeprom_factory_0: eeprom@0 {
+-						reg = <0x0 0x400>;
+-					};
+-
+-					eeprom_factory_8000: eeprom@8000 {
+-						reg = <0x8000 0x4da8>;
+-					};
+-				};
+-			};
+-
+-			partition@50000 {
+-				compatible = "denx,uimage";
+-				label = "firmware";
+-				reg = <0x50000 0xf80000>;
+-			};
+-
+-			partition@fd0000 {
+-				label = "debug";
+-				reg = <0xfd0000 0x10000>;
+-				read-only;
+-			};
+-
+-			partition@fe0000 {
+-				label = "backup";
+-				reg = <0xfe0000 0x10000>;
+-				read-only;
+-			};
+-
+-			partition@ff0000 {
+-				label = "bdinfo";
+-				reg = <0xff0000 0x10000>;
+-				read-only;
+-
+-				nvmem-layout {
+-					compatible = "fixed-layout";
+-					#address-cells = <1>;
+-					#size-cells = <1>;
+-
+-					macaddr_bdinfo_de00: macaddr@de00 {
+-						compatible = "mac-base";
+-						reg = <0xde00 0x6>;
+-						#nvmem-cell-cells = <1>;
+-					};
+-				};
+-			};
+-		};
+-	};
+-};
+-
+-&pcie {
+-	status = "okay";
+-};
+-
+-&gmac0 {
+-	nvmem-cells = <&macaddr_bdinfo_de00 0>;
+-	nvmem-cell-names = "mac-address";
+-};
+-
+-&gmac1 {
+-	status = "okay";
+-	label = "wan";
+-	phy-handle = <&ethphy4>;
+-
+-	nvmem-cells = <&macaddr_bdinfo_de00 1>;
+-	nvmem-cell-names = "mac-address";
+-};
+-
+-&ethphy4 {
+-	/delete-property/ interrupts;
+-};
+-
+-&switch0 {
+-	ports {
+-		port@0 {
+-			status = "okay";
+-			label = "lan4";
+-		};
+-
+-		port@1 {
+-			status = "okay";
+-			label = "lan3";
+-		};
+-
+-		port@2 {
+-			status = "okay";
+-			label = "lan2";
+-		};
+-
+-		port@3 {
+-			status = "okay";
+-			label = "lan1";
+-		};
+-	};
+-};
+-
+-&state_default {
+-	gpio {
+-		groups = "wdt", "i2c", "jtag";
+-		function = "gpio";
+-	};
+-};
+diff --git a/target/linux/ramips/dts/mt7621_cudy_wr1300-v3.dts b/target/linux/ramips/dts/mt7621_cudy_wr1300-v3.dts
+index cb75703a0a..36665e9944 100644
+--- a/target/linux/ramips/dts/mt7621_cudy_wr1300-v3.dts
++++ b/target/linux/ramips/dts/mt7621_cudy_wr1300-v3.dts
+@@ -1,33 +1,4 @@
+ // SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+ 
+-#include "mt7621_cudy_wr1300-v2v3.dtsi"
+-
+-/ {
+-	compatible = "cudy,wr1300-v3", "mediatek,mt7621-soc";
+-	model = "Cudy WR1300 v3";
+-};
+-
+-&pcie0 {
+-	wifi@0,0 {
+-		compatible = "mediatek,mt76";
+-		reg = <0x0000 0 0 0 0>;
+-		nvmem-cells = <&eeprom_factory_0>, <&macaddr_bdinfo_de00 0>;
+-		nvmem-cell-names = "eeprom", "mac-address";
+-		ieee80211-freq-limit = <2400000 2500000>;
+-
+-		led {
+-			led-sources = <0>;
+-			led-active-low;
+-		};
+-	};
+-};
+-
+-&pcie1 {
+-	wifi@0,0 {
+-		compatible = "mediatek,mt76";
+-		reg = <0x0000 0 0 0 0>;
+-		nvmem-cells = <&eeprom_factory_8000>, <&macaddr_bdinfo_de00 2>;
+-		nvmem-cell-names = "eeprom", "mac-address";
+-		ieee80211-freq-limit = <5000000 6000000>;
+-	};
+-};
++#define WR1300_V3
++#include "mt7621_cudy_wr1300.dtsi"
+diff --git a/target/linux/ramips/dts/mt7621_cudy_wr1300-v4.dts b/target/linux/ramips/dts/mt7621_cudy_wr1300-v4.dts
+new file mode 100644
+index 0000000000..b9444db2d1
+--- /dev/null
++++ b/target/linux/ramips/dts/mt7621_cudy_wr1300-v4.dts
+@@ -0,0 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
++
++#define WR1300_V4
++#include "mt7621_cudy_wr1300.dtsi"
+diff --git a/target/linux/ramips/dts/mt7621_cudy_wr1300.dtsi b/target/linux/ramips/dts/mt7621_cudy_wr1300.dtsi
+new file mode 100644
+index 0000000000..8faf5e2981
+--- /dev/null
++++ b/target/linux/ramips/dts/mt7621_cudy_wr1300.dtsi
+@@ -0,0 +1,404 @@
++// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
++
++#include "mt7621.dtsi"
++
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/input.h>
++#include <dt-bindings/leds/common.h>
++
++#if defined(WR1300_V1)
++#define WR1300_SPI_MAX_FREQUENCY	10000000
++#define WR1300_EEPROM_8000_SIZE		0x200
++#elif defined(WR1300_V2) || defined(WR1300_V3) || defined(WR1300_V4)
++#define WR1300_SPI_MAX_FREQUENCY	40000000
++#define WR1300_EEPROM_8000_SIZE		0x4da8
++#else
++#error "Unknown Cudy WR1300 hardware revision"
++#endif
++
++/ {
++#if defined(WR1300_V1)
++	compatible = "cudy,wr1300-v1", "mediatek,mt7621-soc";
++	model = "Cudy WR1300 v1";
++#elif defined(WR1300_V2)
++	compatible = "cudy,wr1300-v2", "mediatek,mt7621-soc";
++	model = "Cudy WR1300 v2";
++#elif defined(WR1300_V3)
++	compatible = "cudy,wr1300-v3", "mediatek,mt7621-soc";
++	model = "Cudy WR1300 v3";
++#elif defined(WR1300_V4)
++	compatible = "cudy,wr1300-v4", "mediatek,mt7621-soc";
++	model = "Cudy WR1300 v4";
++#endif
++
++	aliases {
++		led-boot = &led_sys;
++		led-failsafe = &led_sys;
++		led-running = &led_sys;
++		led-upgrade = &led_sys;
++		label-mac-device = &gmac0;
++	};
++
++	chosen {
++		bootargs = "console=ttyS0,115200";
++	};
++
++	keys {
++		compatible = "gpio-keys";
++
++#if defined(WR1300_V4)
++		wps {
++			label = "wps";
++			gpios = <&gpio 12 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_WPS_BUTTON>;
++		};
++
++		reset {
++			label = "reset";
++			gpios = <&gpio 10 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_RESTART>;
++		};
++#elif defined(WR1300_V1)
++		reset {
++			label = "reset";
++			gpios = <&gpio 18 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_RESTART>;
++		};
++
++		wps {
++			label = "wps";
++			gpios = <&gpio 3 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_WPS_BUTTON>;
++		};
++#else
++		reset {
++			label = "reset";
++			gpios = <&gpio 18 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_RESTART>;
++		};
++
++		wps {
++			label = "wps";
++			gpios = <&gpio 7 GPIO_ACTIVE_LOW>;
++			linux,code = <KEY_WPS_BUTTON>;
++		};
++#endif
++	};
++
++	leds {
++		compatible = "gpio-leds";
++
++#if defined(WR1300_V4)
++		led_sys: sys {
++			label = "green:sys";
++			gpios = <&gpio 18 GPIO_ACTIVE_HIGH>;
++		};
++
++		internet {
++			label = "green:internet";
++			gpios = <&gpio 9 GPIO_ACTIVE_HIGH>;
++		};
++
++		lan4 {
++			label = "green:lan4";
++			gpios = <&gpio 11 GPIO_ACTIVE_HIGH>;
++		};
++
++		lan3 {
++			label = "green:lan3";
++			gpios = <&gpio 7 GPIO_ACTIVE_LOW>;
++		};
++
++		lan2 {
++			label = "green:lan2";
++			gpios = <&gpio 13 GPIO_ACTIVE_LOW>;
++		};
++
++		lan1 {
++			label = "green:lan1";
++			gpios = <&gpio 15 GPIO_ACTIVE_LOW>;
++		};
++
++		wan {
++			label = "green:wan";
++			gpios = <&gpio 8 GPIO_ACTIVE_LOW>;
++		};
++
++		wlan2g {
++			label = "green:wlan2g";
++			gpios = <&gpio 6 GPIO_ACTIVE_LOW>;
++		};
++
++		wlan5g {
++			label = "green:wlan5g";
++			gpios = <&gpio 5 GPIO_ACTIVE_HIGH>;
++		};
++#elif defined(WR1300_V1)
++		led_sys: sys {
++			label = "green:sys";
++			gpios = <&gpio 15 GPIO_ACTIVE_HIGH>;
++		};
++
++		usb {
++			function = LED_FUNCTION_USB;
++			color = <LED_COLOR_ID_GREEN>;
++			gpios = <&gpio 14 GPIO_ACTIVE_HIGH>;
++			trigger-sources = <&xhci_ehci_port1>, <&ehci_port2>;
++			linux,default-trigger = "usbport";
++		};
++
++		wps {
++			function = LED_FUNCTION_WPS;
++			color = <LED_COLOR_ID_GREEN>;
++			gpios = <&gpio 13 GPIO_ACTIVE_LOW>;
++		};
++#else
++		led_sys: sys {
++			label = "green:sys";
++			gpios = <&gpio 15 GPIO_ACTIVE_LOW>;
++		};
++
++		wps {
++			function = LED_FUNCTION_WPS;
++			color = <LED_COLOR_ID_GREEN>;
++			gpios = <&gpio 13 GPIO_ACTIVE_LOW>;
++		};
++#endif
++	};
++};
++
++&spi0 {
++	status = "okay";
++
++	flash@0 {
++		compatible = "jedec,spi-nor";
++		reg = <0>;
++		spi-max-frequency = <WR1300_SPI_MAX_FREQUENCY>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "u-boot";
++				reg = <0x0 0x30000>;
++				read-only;
++			};
++
++			partition@30000 {
++				label = "u-boot-env";
++				reg = <0x30000 0x10000>;
++				read-only;
++			};
++
++			partition@40000 {
++				label = "factory";
++				reg = <0x40000 0x10000>;
++				read-only;
++
++				nvmem-layout {
++					compatible = "fixed-layout";
++					#address-cells = <1>;
++					#size-cells = <1>;
++
++					eeprom_factory_0: eeprom@0 {
++						reg = <0x0 0x400>;
++					};
++
++					eeprom_factory_8000: eeprom@8000 {
++						reg = <0x8000 WR1300_EEPROM_8000_SIZE>;
++					};
++				};
++			};
++
++			partition@50000 {
++				compatible = "denx,uimage";
++				label = "firmware";
++				reg = <0x50000 0xf80000>;
++			};
++
++			partition@fd0000 {
++				label = "debug";
++				reg = <0xfd0000 0x10000>;
++				read-only;
++			};
++
++			partition@fe0000 {
++				label = "backup";
++				reg = <0xfe0000 0x10000>;
++				read-only;
++			};
++
++			partition@ff0000 {
++				label = "bdinfo";
++				reg = <0xff0000 0x10000>;
++				read-only;
++
++				nvmem-layout {
++					compatible = "fixed-layout";
++					#address-cells = <1>;
++					#size-cells = <1>;
++
++					macaddr_bdinfo_de00: macaddr@de00 {
++						compatible = "mac-base";
++						reg = <0xde00 0x6>;
++						#nvmem-cell-cells = <1>;
++					};
++				};
++			};
++		};
++	};
++};
++
++&pcie {
++	status = "okay";
++};
++
++#if defined(WR1300_V1)
++&pcie0 {
++	wifi@0,0 {
++		compatible = "mediatek,mt76";
++		reg = <0x0000 0 0 0 0>;
++		nvmem-cells = <&eeprom_factory_0>, <&macaddr_bdinfo_de00 0>;
++		nvmem-cell-names = "eeprom", "mac-address";
++		ieee80211-freq-limit = <2400000 2500000>;
++
++		led {
++			led-active-low;
++		};
++	};
++};
++
++&pcie1 {
++	wifi@0,0 {
++		compatible = "mediatek,mt76";
++		reg = <0x0000 0 0 0 0>;
++		nvmem-cells = <&eeprom_factory_8000>, <&macaddr_bdinfo_de00 2>;
++		nvmem-cell-names = "eeprom", "mac-address";
++		ieee80211-freq-limit = <5000000 6000000>;
++
++		led {
++			led-sources = <2>;
++			led-active-low;
++		};
++	};
++};
++#elif defined(WR1300_V2)
++&pcie1 {
++	wifi@0,0 {
++		compatible = "mediatek,mt76";
++		reg = <0x0000 0 0 0 0>;
++		nvmem-cells = <&eeprom_factory_0>, <&macaddr_bdinfo_de00 0>;
++		nvmem-cell-names = "eeprom", "mac-address";
++		ieee80211-freq-limit = <2400000 2500000>;
++	};
++};
++
++&pcie0 {
++	wifi@0,0 {
++		compatible = "mediatek,mt76";
++		reg = <0x0000 0 0 0 0>;
++		nvmem-cells = <&eeprom_factory_8000>, <&macaddr_bdinfo_de00 2>;
++		nvmem-cell-names = "eeprom", "mac-address";
++		ieee80211-freq-limit = <5000000 6000000>;
++	};
++};
++#elif defined(WR1300_V3)
++&pcie0 {
++	wifi@0,0 {
++		compatible = "mediatek,mt76";
++		reg = <0x0000 0 0 0 0>;
++		nvmem-cells = <&eeprom_factory_0>, <&macaddr_bdinfo_de00 0>;
++		nvmem-cell-names = "eeprom", "mac-address";
++		ieee80211-freq-limit = <2400000 2500000>;
++
++		led {
++			led-sources = <0>;
++			led-active-low;
++		};
++	};
++};
++
++&pcie1 {
++	wifi@0,0 {
++		compatible = "mediatek,mt76";
++		reg = <0x0000 0 0 0 0>;
++		nvmem-cells = <&eeprom_factory_8000>, <&macaddr_bdinfo_de00 2>;
++		nvmem-cell-names = "eeprom", "mac-address";
++		ieee80211-freq-limit = <5000000 6000000>;
++	};
++};
++#elif defined(WR1300_V4)
++&pcie0 {
++	wifi@0,0 {
++		compatible = "mediatek,mt76";
++		reg = <0x0000 0 0 0 0>;
++		nvmem-cells = <&eeprom_factory_0>, <&macaddr_bdinfo_de00 0>;
++		nvmem-cell-names = "eeprom", "mac-address";
++		ieee80211-freq-limit = <2400000 2500000>;
++	};
++};
++
++&pcie1 {
++	wifi@0,0 {
++		compatible = "mediatek,mt76";
++		reg = <0x0000 0 0 0 0>;
++		nvmem-cells = <&eeprom_factory_8000>, <&macaddr_bdinfo_de00 2>;
++		nvmem-cell-names = "eeprom", "mac-address";
++		ieee80211-freq-limit = <5000000 6000000>;
++	};
++};
++#endif
++
++&gmac0 {
++	nvmem-cells = <&macaddr_bdinfo_de00 0>;
++	nvmem-cell-names = "mac-address";
++};
++
++&gmac1 {
++	status = "okay";
++	label = "wan";
++	phy-handle = <&ethphy4>;
++	nvmem-cells = <&macaddr_bdinfo_de00 1>;
++	nvmem-cell-names = "mac-address";
++};
++
++&ethphy4 {
++	/delete-property/ interrupts;
++};
++
++&switch0 {
++	ports {
++		port@0 {
++			status = "okay";
++			label = "lan4";
++		};
++
++		port@1 {
++			status = "okay";
++			label = "lan3";
++		};
++
++		port@2 {
++			status = "okay";
++			label = "lan2";
++		};
++
++		port@3 {
++			status = "okay";
++			label = "lan1";
++		};
++	};
++};
++
++&state_default {
++	gpio {
++#if defined(WR1300_V4)
++		groups = "wdt", "i2c", "jtag", "uart3";
++#else
++		groups = "wdt", "i2c", "jtag";
++#endif
++		function = "gpio";
++	};
++};
+diff --git a/target/linux/ramips/image/mt7621.mk b/target/linux/ramips/image/mt7621.mk
+index cd595e72c4..76e2d6b43a 100644
+--- a/target/linux/ramips/image/mt7621.mk
++++ b/target/linux/ramips/image/mt7621.mk
+@@ -821,6 +821,18 @@ define Device/cudy_wr1300-v3
+ endef
+ TARGET_DEVICES += cudy_wr1300-v3
+ 
++define Device/cudy_wr1300-v4
++  $(Device/dsa-migration)
++  IMAGE_SIZE := 15872k
++  DEVICE_VENDOR := Cudy
++  DEVICE_MODEL := WR1300
++  DEVICE_VARIANT := v4
++  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e kmod-mt7663-firmware-ap \
++	-uboot-envtools
++  SUPPORTED_DEVICES += cudy,wr1300 R30
++endef
++TARGET_DEVICES += cudy_wr1300-v4
++
+ define Device/cudy_wr2100
+   $(Device/dsa-migration)
+   DEVICE_VENDOR := Cudy
+diff --git a/target/linux/ramips/mt7621/base-files/etc/board.d/01_leds b/target/linux/ramips/mt7621/base-files/etc/board.d/01_leds
+index eb4de3e03d..efede4b59e 100644
+--- a/target/linux/ramips/mt7621/base-files/etc/board.d/01_leds
++++ b/target/linux/ramips/mt7621/base-files/etc/board.d/01_leds
+@@ -7,6 +7,15 @@ board=$(board_name)
+ board_config_update
+ 
+ case $board in
++cudy,wr1300-v4)
++	ucidef_set_led_netdev "wan" "WAN" "green:wan" "wan" "link tx rx"
++	ucidef_set_led_netdev "lan1" "LAN1" "green:lan1" "lan1" "link tx rx"
++	ucidef_set_led_netdev "lan2" "LAN2" "green:lan2" "lan2" "link tx rx"
++	ucidef_set_led_netdev "lan3" "LAN3" "green:lan3" "lan3" "link tx rx"
++	ucidef_set_led_netdev "lan4" "LAN4" "green:lan4" "lan4" "link tx rx"
++	ucidef_set_led_wlan "wlan2g" "WiFi 2.4GHz" "green:wlan2g" "phy0tpt"
++	ucidef_set_led_wlan "wlan5g" "WiFi 5GHz" "green:wlan5g" "phy1tpt"
++	;;
+ alfa-network,ax1800rm)
+ 	ucidef_set_led_netdev "lan1" "lan1" "green:lan1" "lan1"
+ 	ucidef_set_led_netdev "lan2" "lan2" "green:lan2" "lan2"
