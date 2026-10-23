@@ -2,7 +2,7 @@
 
 ↩️ [Русская версия (BUILD.md)](BUILD.md)
 
-The patch adds support for the Cudy WR1300 v4. Patch author: Jan Brudna, [patch page (v2) on Patchwork](https://patchwork.ozlabs.org/project/openwrt/patch/20260513183938.242137-1-jan.brudna@gmail.com/). Tested on OpenWrt `v25.12.5`.
+The patch adds support for the Cudy WR1300 v4. Patch author: Jan Brudna, [patch page (v2) on Patchwork](https://patchwork.ozlabs.org/project/openwrt/patch/20260513183938.242137-1-jan.brudna@gmail.com/). Tested on OpenWrt `v25.12.6`.
 
 Before you start, set up the build environment: see the [list of dependencies](https://openwrt.org/docs/guide-developer/toolchain/install-buildsystem). Do not build as root, and make sure you have enough free disk space.
 
@@ -10,7 +10,7 @@ Before you start, set up the build environment: see the [list of dependencies](h
 ```bash
 git clone https://github.com/openwrt/openwrt.git
 cd openwrt
-git checkout v25.12.5
+git checkout v25.12.6
 ```
 
 2. Update the feeds:
@@ -28,7 +28,7 @@ curl -L https://raw.githubusercontent.com/LinSwitch/cudy-wr1300-v4-openwrt/refs/
 
 4. Download the official configuration file for the target architecture. The version in the link must match the tag from step 1:
 ```bash
-curl -L https://downloads.openwrt.org/releases/25.12.5/targets/ramips/mt7621/config.buildinfo -o .config
+curl -L https://downloads.openwrt.org/releases/25.12.6/targets/ramips/mt7621/config.buildinfo -o .config
 ```
 
 5. Select the device profile and check the configuration. Target System (`MediaTek Ralink MIPS`) and Subtarget (`MT7621 based boards`) should already be selected; change only Target Profile to `Cudy WR1300 v4`:
@@ -49,3 +49,39 @@ curl -L -O --output-dir dl https://sources.openwrt.org/bzip2-1.0.8.tar.gz
    Then run `make download` again, and once it finishes, run the build command.
 
 The finished images are in `bin/targets/ramips/mt7621/`.
+
+### Potential Error During `make menuconfig` or `make defconfig`
+
+When building OpenWrt 25.12.6, you may encounter a recursive dependency error related to the WeeChat packages:
+
+```text
+error: recursive dependency detected!
+symbol PACKAGE_luci-app-weechat depends on PACKAGE_weechat-full
+symbol PACKAGE_weechat-full depends on PACKAGE_weechat-minimal
+symbol PACKAGE_weechat-minimal is selected by PACKAGE_luci-app-weechat
+```
+
+If this error occurs, open the following file:
+
+`package/feeds/luci/luci-app-weechat/Makefile`
+
+Find this line:
+
+```make
+LUCI_DEPENDS:=+luci-base +weechat +rpcd-mod-ucode
+```
+
+Replace it with:
+
+```make
+LUCI_DEPENDS:=+luci-base +weechat-full +rpcd-mod-ucode
+```
+
+Then remove the temporary configuration files and run `make defconfig` again:
+
+```bash
+rm -rf tmp/
+make defconfig
+```
+
+If the error is resolved, you can continue with the build. This workaround was tested with OpenWrt 25.12.6 and is only needed if the error occurs.
